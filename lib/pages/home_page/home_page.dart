@@ -4,6 +4,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:pokedex/consts/const.app.dart';
 import 'package:pokedex/models/pokeapi.dart';
 import 'package:pokedex/pages/home_page/widgets/app_bar_home.dart';
+import 'package:pokedex/pages/home_page/widgets/poke_item.dart';
 import 'package:pokedex/stores/pokeapi_store.dart';
 
 class HomePage extends StatelessWidget {
@@ -43,23 +44,53 @@ class HomePage extends StatelessWidget {
                   PokeAPI _pokeApi = pokeApiStore.pokeAPI;
                   return (pokeApiStore.pokeAPI != null)
                       ? AnimationLimiter(
-                          child: ListView.builder(
+                          child: GridView.builder(
                               physics: BouncingScrollPhysics(),
                               padding: EdgeInsets.all(12),
                               addAutomaticKeepAlives: true,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2),
                               itemCount: _pokeApi.pokemon.length,
                               itemBuilder: (context, index) {
-                                return ListTile(
-                                    title: Text(_pokeApi.pokemon[index].name));
-                              }),
+                                Pokemon pokemon =
+                                    pokeApiStore.getPokemon(index: index);
+                                return AnimationConfiguration.staggeredGrid(
+                                    position: index,
+                                    columnCount: 2,
+                                    duration: const Duration(milliseconds: 500),
+                                    child: ScaleAnimation(
+                                      child: GestureDetector(
+                                        child: PokeItem(
+                                          types: pokemon.type,
+                                          index: index,
+                                          name: pokemon.name,
+                                          color: Colors.red,
+                                          image: pokeApiStore.getImage(
+                                              numero: pokemon.num),
+                                        ),
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder:
+                                                      (BuildContext context) =>
+                                                          Container(),
+                                                  fullscreenDialog: true));
+                                        },
+                                      ),
+                                    ),
+                                  );
+                              },
+                            ),
                         )
                       : Center(
                           child: CircularProgressIndicator(),
                         );
-                }))
+                },),)
               ],
             ),
-          )
+          ),
         ],
       ),
     );
